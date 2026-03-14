@@ -1,0 +1,2787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTINEL — Secure and Efficient On-Chip Sensing for Integrity, Lifetime Management, and Early Attack Detection & Mitigation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1a1a1a;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        /* Color Palette */
+        :root {
+            --navy: #1B2A4A;
+            --teal: #0D9488;
+            --muted: #64748B;
+            --crimson: #7F1D1D;
+            --light-bg: #f0f4f8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        /* Navbar */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--navy);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            border-bottom: 2px solid rgba(13, 148, 136, 0.3);
+        }
+
+        .nav-left {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-center a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 0.25rem;
+        }
+
+        .nav-center a:hover {
+            color: var(--teal);
+            border-bottom-color: var(--teal);
+        }
+
+        .nav-right {
+            text-align: right;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        /* Section Container */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        section.light-bg {
+            background: linear-gradient(135deg, #F5F3FF 0%, #F0F4FF 100%);
+        }
+
+        section.white-bg {
+            background: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #7F1D1D 0%, #2D0A0A 100%) !important;
+            color: white;
+            padding: 5rem 2rem !important;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: white !important;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.95;
+            font-weight: 300;
+            color: white !important;
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: white;
+        }
+
+        .stat-card span {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            display: block;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            color: white;
+        }
+
+        /* Headings */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--navy);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--navy);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card.teal {
+            border-left-color: var(--teal);
+        }
+
+        .card.crimson {
+            border-left-color: var(--crimson);
+            background: #fff5f5;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .grid-5 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+
+        /* Quote Box */
+        .quote-box {
+            background: #7F1D1D;
+            padding: 2rem;
+            border-left: 4px solid #D4AF37;
+            border-radius: 8px;
+            margin: 2rem 0;
+            font-style: italic;
+            color: #f0f4f8;
+        }
+
+        .quote-box::before {
+            content: "❝";
+            font-size: 3rem;
+            color: #D4AF37;
+            opacity: 0.3;
+            margin-right: 0.5rem;
+        }
+
+        /* Scientific Context */
+        .sci-context-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .sci-context-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sci-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .sci-card h3 {
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        .sci-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sci-card li {
+            padding: 0.5rem 0;
+            color: #404040;
+        }
+
+        .sci-card li::before {
+            content: "▪ ";
+            color: var(--teal);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* Innovation Box */
+        .innovation-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid var(--teal);
+            padding: 2.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .innovation-box h3 {
+            color: var(--navy);
+            margin-bottom: 1.5rem;
+        }
+
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pillar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--teal);
+        }
+
+        .pillar-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* WP Cards */
+        .wp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+
+        .wp-card {
+            padding: 1.5rem;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s;
+        }
+
+        .wp-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .wp-1 { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .wp-2 { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .wp-3 { background: linear-gradient(135deg, #ec4899, #be185d); }
+        .wp-4 { background: linear-gradient(135deg, #f97316, #c2410c); }
+        .wp-5 { background: linear-gradient(135deg, #0d9488, #0f766e); }
+        .wp-6 { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .wp-7 { background: linear-gradient(135deg, #6366f1, #4338ca); }
+
+        /* Task Table */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .task-table th {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .task-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .task-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .task-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .task-id {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* Milestone Bars */
+        .milestone-section {
+            margin: 3rem 0;
+        }
+
+        .milestone {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            gap: 1rem;
+        }
+
+        .milestone-label {
+            min-width: 150px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--navy);
+        }
+
+        .milestone-bar {
+            flex-grow: 1;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow);
+        }
+
+        .ms-blue { background: linear-gradient(90deg, #3b82f6, #1e40af); }
+        .ms-purple { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+        .ms-red { background: linear-gradient(90deg, #ef4444, #b91c1c); }
+        .ms-green { background: linear-gradient(90deg, #22c55e, #15803d); }
+        .ms-teal { background: linear-gradient(90deg, #0d9488, #0f766e); }
+        .ms-orange { background: linear-gradient(90deg, #f97316, #c2410c); }
+        .ms-indigo { background: linear-gradient(90deg, #6366f1, #4338ca); }
+
+        /* Partner Cards */
+        .partner-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border: 2px solid #e5e7eb;
+        }
+
+        .partner-header {
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .partner-details {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-orange {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        /* Consortium Table */
+        .value-chain-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
+        }
+
+        .value-chain-table th {
+            background: linear-gradient(135deg, #0d9488, #0f766e);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .value-chain-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .value-chain-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-in {
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .status-out {
+            color: #7c2d12;
+            font-weight: 500;
+        }
+
+        /* Budget Table */
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 0.85rem;
+        }
+
+        .budget-table th {
+            background: linear-gradient(135deg, #1B2A4A, #0f1929);
+            color: white;
+            padding: 0.8rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .budget-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .budget-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .budget-partner {
+            text-align: left;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* Risk Table */
+        .risk-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
+        }
+
+        .risk-table th {
+            background: var(--navy);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .risk-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .risk-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .risk-id {
+            font-weight: 600;
+            color: var(--navy);
+            min-width: 30px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-technical {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-regulatory {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-organisational {
+            background: #e9d5ff;
+            color: #6b21a8;
+        }
+
+        .badge-market {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .badge-high-risk {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-medium-risk {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-low-risk {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-mitigation {
+            font-size: 0.85rem;
+            color: #555;
+            font-style: italic;
+        }
+
+        /* Print Button */
+        .print-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--teal);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .print-btn:hover {
+            background: #0f766e;
+            transform: scale(1.05);
+        }
+
+        @media print {
+            .print-btn {
+                display: none;
+            }
+            nav {
+                position: static;
+            }
+        }
+
+        /* Governance Cards */
+        .governance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .governance-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--navy);
+        }
+
+        .governance-card h4 {
+            color: var(--navy);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .governance-card ul {
+            list-style: none;
+            padding: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .governance-card li {
+            padding: 0.4rem 0;
+        }
+
+        .governance-card li::before {
+            content: "↪ ";
+            color: var(--teal);
+            margin-right: 0.5rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Breakdown Cards */
+        .breakdown-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .breakdown-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--teal);
+            text-align: center;
+        }
+
+        .breakdown-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin: 0.5rem 0;
+        }
+
+        .breakdown-label {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .breakdown-pct {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.5rem;
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #1B2A4A, #2d3e50);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--teal);
+        }
+
+        @media (max-width: 768px) {
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 0.5rem 0;
+            }
+        }
+
+        /* Balance Analysis */
+        .balance-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .balance-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--teal);
+        }
+
+        .balance-card h4 {
+            color: var(--navy);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .balance-card p {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Objective Cards */
+        .objective-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+
+        .objective-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-top: 3px solid var(--teal);
+            text-align: center;
+        }
+
+        .objective-card h4 {
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .objective-card p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* ========== MOBILE RESPONSIVE ========== */
+
+        /* Tablets */
+        @media (max-width: 1024px) {
+            section {
+                padding: 3rem 1.5rem;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Phones */
+        @media (max-width: 768px) {
+            /* Navbar: collapse to hamburger-style stacked */
+            nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.8rem 1rem;
+            }
+            .nav-left {
+                font-size: 1.1rem;
+            }
+            .nav-center {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.4rem;
+                width: 100%;
+            }
+            .nav-center a {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.5rem;
+                border-bottom: none;
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+            }
+            .nav-right {
+                font-size: 0.75rem;
+                text-align: center;
+            }
+
+            /* Hero */
+            .hero {
+                padding: 3rem 1rem !important;
+            }
+            .hero h1 {
+                font-size: 1.5rem !important;
+                letter-spacing: 0;
+            }
+            .hero .subtitle {
+                font-size: 0.9rem;
+            }
+            .stat-cards {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.8rem;
+            }
+            .stat-card {
+                padding: 1rem;
+            }
+            .stat-card span {
+                font-size: 1.8rem !important;
+            }
+            .stat-card strong {
+                font-size: 0.85rem !important;
+            }
+
+            /* Sections */
+            section {
+                padding: 2rem 1rem;
+            }
+            h1 { font-size: 1.4rem; }
+            h2 { font-size: 1.3rem; }
+            h3 { font-size: 1.05rem; }
+
+            /* All 2-column grids → 1 column */
+            .grid-2,
+            .sci-context-grid,
+            .pillars,
+            .balance-cards,
+            .objective-cards,
+            .governance-grid,
+            .wp-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Inline grid styles (used in strategic buffers, SO coverage, etc.) */
+            [style*="grid-template-columns: 1fr 1fr"],
+            [style*="grid-template-columns:1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Tables: keep as table but wrap in scrollable container */
+            table {
+                display: table;
+                font-size: 0.78rem;
+                max-width: 100%;
+            }
+            /* All table wrappers get scroll behavior */
+            [style*="overflow-x"],
+            .table-scroll {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+                /* Scroll shadow to hint there's more content */
+                background:
+                    linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+                    linear-gradient(to left, white 30%, rgba(255,255,255,0)),
+                    linear-gradient(to right, rgba(0,0,0,0.08), rgba(0,0,0,0)),
+                    linear-gradient(to left, rgba(0,0,0,0.08), rgba(0,0,0,0));
+                background-position: left center, right center, left center, right center;
+                background-repeat: no-repeat;
+                background-size: 40px 100%, 40px 100%, 15px 100%, 15px 100%;
+                background-attachment: local, local, scroll, scroll;
+            }
+            th, td {
+                padding: 0.5rem 0.6rem !important;
+                min-width: 60px;
+                white-space: nowrap;
+            }
+            /* Let description/last columns wrap */
+            td:last-child {
+                white-space: normal;
+                min-width: 180px;
+                max-width: 250px;
+            }
+            /* Alignment table: 4th column (How SENTINEL addresses it) wraps */
+            td:nth-child(4) {
+                white-space: normal;
+                min-width: 200px;
+                max-width: 280px;
+            }
+
+            /* Task tables */
+            .task-table {
+                font-size: 0.75rem;
+            }
+            .task-table td:nth-child(2) {
+                white-space: normal;
+                min-width: 140px;
+                max-width: 220px;
+            }
+
+            /* Partner cards */
+            .partner-card {
+                padding: 1rem;
+            }
+            .partner-header {
+                font-size: 0.95rem !important;
+            }
+
+            /* WP cards in overview grid */
+            .wp-card {
+                padding: 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            /* Milestones */
+            .milestone-bar {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+
+            /* Budget table */
+            .budget-table {
+                font-size: 0.75rem;
+            }
+
+            /* Risk table */
+            .risk-table {
+                font-size: 0.75rem;
+            }
+
+            /* Gantt chart container */
+            .gantt-container {
+                min-height: 300px;
+            }
+
+            /* Critical path cards */
+            [style*="border-left: 4px solid #8B5CF6"],
+            [style*="border-left: 4px solid #EC4899"],
+            [style*="border-left: 4px solid #0D9488"],
+            [style*="border-left: 4px solid #F97316"] {
+                padding: 0.8rem !important;
+            }
+
+            /* Description boxes */
+            .description-box {
+                padding: 1rem;
+                font-size: 0.88rem;
+            }
+
+            /* Innovation box */
+            .innovation-box {
+                padding: 1.5rem;
+            }
+
+            /* Quote box */
+            .quote-box {
+                padding: 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            /* Print button */
+            .print-btn {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.8rem;
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            /* Footer */
+            footer {
+                padding: 1.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            /* Flow chain (value chain) */
+            .flow-step {
+                min-width: 120px;
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+            .flow-chain {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.2rem !important;
+            }
+            .stat-cards {
+                grid-template-columns: 1fr !important;
+            }
+            .stat-card span {
+                font-size: 1.5rem !important;
+            }
+            .nav-center a {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.4rem;
+            }
+            table th, table td {
+                padding: 0.4rem !important;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Gantt Chart */
+        .gantt-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .gantt-chart {
+            min-width: 100%;
+        }
+
+        /* Critical Path */
+        .critical-path {
+            background: linear-gradient(135deg, #fef3c7, #fde047);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .critical-path h4 {
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        .critical-path ol {
+            margin-left: 1.5rem;
+        }
+
+        .critical-path li {
+            margin-bottom: 0.75rem;
+            color: #333;
+        }
+
+        /* TRL Badge */
+        .trl-badge {
+            display: inline-block;
+            background: var(--teal);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-top: 4px solid var(--navy);
+        }
+
+        .summary-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--teal);
+            margin: 0.5rem 0;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        /* Centered Description */
+        .description-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+            text-align: center;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .description-box p {
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--navy);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-left">SENTINEL</div>
+        <div class="nav-center">
+            <a href="#problem">The Problem</a>
+            <a href="#solution">The Solution</a>
+            <a href="#value">Value Chain</a>
+            <a href="#workplan">Workplan</a>
+            <a href="#consortium">Consortium</a>
+            <a href="#budget">Budget</a>
+            <a href="#risks">Risks</a>
+        </div>
+        <div class="nav-right">
+            <strong>CSIC — IMSE-CNM</strong><br>
+            Horizon Europe | Cluster 3 - Security
+        </div>
+    </nav>
+
+    <!-- Section 1: The Problem -->
+    <section id="problem" class="white-bg">
+        <div class="hero">
+            <h1>THE SILENT CRISIS IN HARDWARE SECURITY</h1>
+            <p class="subtitle">As AI Accelerators Push Physical Limits, Aging-Induced Failures Threaten Critical Infrastructure</p>
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <span>78%</span>
+                    <strong>of failures in Llama 3 pre-training caused by GPU/host component failures</strong>
+                    Meta, 2024
+                </div>
+                <div class="stat-card">
+                    <span>18-25%</span>
+                    <strong>maintenance cost reduction possible with predictive monitoring</strong>
+                    Industry studies
+                </div>
+                <div class="stat-card">
+                    <span>$100B+</span>
+                    <strong>annual cost of semiconductor counterfeiting worldwide</strong>
+                    IHS Markit
+                </div>
+                <div class="stat-card">
+                    <span>10M+</span>
+                    <strong>counterfeit chips entering supply chains annually</strong>
+                    OECD/EUIPO
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-box">
+            Current approaches operate at the software and system level — none exploit the on-chip CMOS degradation signatures that SENTINEL targets.
+            <br><small>— SENTINEL Project Outline v3.0</small>
+        </div>
+
+        <h2 style="margin-top: 3rem; text-align: center;">Scientific Context</h2>
+        <div class="sci-context-grid">
+            <div class="sci-card">
+                <h3>🔬 CMOS Degradation Phenomena</h3>
+                <ul>
+                    <li>BTI (Bias Temperature Instability)</li>
+                    <li>HCD (Hot-Carrier Degradation)</li>
+                    <li>TDDB (Time-Dependent Dielectric Breakdown)</li>
+                    <li>RTN (Random Telegraph Noise)</li>
+                    <li>Electromigration</li>
+                </ul>
+            </div>
+            <div class="sci-card">
+                <h3>⚠️ Current Technology Limitations</h3>
+                <ul>
+                    <li>✕ Software-level monitoring: No access to transistor-level degradation</li>
+                    <li>✕ System-level health checks: Reactive, not predictive</li>
+                    <li>✕ External testing: Expensive, offline, cannot monitor in-field</li>
+                    <li>✕ No dual-purpose exploitation: Security and reliability treated separately</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="innovation-box">
+            <h3>💡 The SENTINEL Innovation</h3>
+            <p>SENTINEL overcomes these limitations by exploiting CMOS variability for both security AND reliability:</p>
+            <div class="pillars">
+                <div class="pillar">
+                    <div class="pillar-icon">📡</div>
+                    <strong>On-Chip Monitoring</strong>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #555;">Active degradation sensors</p>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-icon">🧠</div>
+                    <strong>AI-Driven Analysis</strong>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #555;">Physics-informed ML models</p>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-icon">🔐</div>
+                    <strong>Hardware Root of Trust</strong>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #555;">PUF + PQC co-processors</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: The Solution -->
+    <section id="solution" class="light-bg">
+        <h2>The Solution: Project SENTINEL</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>🎯 Project Objective</h3>
+                <p>SENTINEL will exploit CMOS variability phenomena (BTI, HCD, TDDB, RTN) to simultaneously enhance chip security and reliability through a unified hardware-level approach, delivering an integrated FPGA/SoC demonstrator validated in defence/critical infrastructure scenarios.</p>
+            </div>
+            <div class="card crimson">
+                <h3>⚡ Problem to Solve</h3>
+                <p>AI accelerator aging threatens data-centre reliability. Semiconductor counterfeiting costs >$100B/year. No existing platform exploits on-chip degradation for both security and health monitoring simultaneously.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+            <span class="trl-badge">TRL 3 → TRL 6</span>
+        </div>
+
+        <h3 style="text-align: center; margin-top: 2rem;">Project Summary</h3>
+        <div class="grid-3">
+            <div class="summary-card">
+                <div class="summary-value">€3.83M</div>
+                <div class="summary-label">Total Budget</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">42</div>
+                <div class="summary-label">Months Duration</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">9</div>
+                <div class="summary-label">Partners in Consortium</div>
+            </div>
+        </div>
+
+        <h3 style="text-align: center; margin-top: 2rem;">Specific Objectives</h3>
+        <div class="objective-cards">
+            <div class="objective-card">
+                <h4>SO1</h4>
+                <p>Real-time degradation monitoring</p>
+            </div>
+            <div class="objective-card">
+                <h4>SO2</h4>
+                <p>Adaptive lifetime extension</p>
+            </div>
+            <div class="objective-card">
+                <h4>SO3</h4>
+                <p>Anomaly detection and side-channel obfuscation</p>
+            </div>
+            <div class="objective-card">
+                <h4>SO4</h4>
+                <p>Robust entropy sources for security primitives</p>
+            </div>
+            <div class="objective-card">
+                <h4>SO5</h4>
+                <p>Counterfeit/recycled-chip detection</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Value Chain -->
+    <section id="value" class="white-bg">
+        <h2>Value Chain of the SENTINEL Ecosystem</h2>
+        <p class="section-subtitle">The SENTINEL value chain integrates all stakeholders contributing to the creation, development, validation, commercialisation and adoption of hardware security solutions.</p>
+
+        <div class="flow-diagram">
+            <div class="flow-box">🔬 RESEARCH<br>Universities, OPIs</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">⚙️ DEVELOPMENT<br>RTOs</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">✓ VALIDATION<br>Industry, End-users</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">💼 COMMERCIALISATION<br>SMEs, Industry</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">🛡️ ADOPTION<br>Defence, Critical Infra</div>
+        </div>
+
+        <h3 style="margin-top: 2.5rem;">Stakeholder Mapping</h3>
+        <div style="overflow-x: auto;">
+            <table class="value-chain-table">
+                <thead>
+                    <tr>
+                        <th>Stakeholder Category</th>
+                        <th>Examples</th>
+                        <th>Status</th>
+                        <th>Involvement</th>
+                        <th>Justification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Universities/OPIs</td>
+                        <td>CSIC, TU Graz IAIK, TUM</td>
+                        <td><span class="status-in">✓ IN CONSORTIUM</span></td>
+                        <td>Research, design, ML</td>
+                        <td>Core technical expertise in chip security, ML</td>
+                    </tr>
+                    <tr>
+                        <td>RTOs</td>
+                        <td>Fraunhofer AISEC, ITWM, IMEC</td>
+                        <td><span class="status-in">✓ IN CONSORTIUM</span></td>
+                        <td>Validation, fabrication, design automation</td>
+                        <td>Pilot lines, advanced fabrication, formal methods</td>
+                    </tr>
+                    <tr>
+                        <td>Large Industry</td>
+                        <td>Thales DIS</td>
+                        <td><span class="status-in">✓ IN CONSORTIUM</span></td>
+                        <td>Integration, end-user validation</td>
+                        <td>Defence applications, system-level testing</td>
+                    </tr>
+                    <tr>
+                        <td>SMEs</td>
+                        <td>IAR Systems, Critical Software</td>
+                        <td><span class="status-in">✓ IN CONSORTIUM</span></td>
+                        <td>Tool development, deployment</td>
+                        <td>Embedded systems, critical infrastructure domain</td>
+                    </tr>
+                    <tr>
+                        <td>Defence/Aerospace End-Users</td>
+                        <td>Via Thales, Critical Software</td>
+                        <td><span class="status-out">Not direct</span></td>
+                        <td>Validation scenarios, requirements</td>
+                        <td>End-user advisory via consortium proxies</td>
+                    </tr>
+                    <tr>
+                        <td>Semiconductor Foundries</td>
+                        <td>TSMC, GlobalFoundries</td>
+                        <td><span class="status-out">Not direct</span></td>
+                        <td>Fabrication, MPW runs</td>
+                        <td>Via subcontracting, process technology access</td>
+                    </tr>
+                    <tr>
+                        <td>EDA Tool Vendors</td>
+                        <td>Synopsys, Cadence</td>
+                        <td><span class="status-out">Not direct</span></td>
+                        <td>Exploitation targets</td>
+                        <td>RTL scanner integration for design automation</td>
+                    </tr>
+                    <tr>
+                        <td>Standardisation Bodies</td>
+                        <td>ETSI, CEN-CENELEC, ISO</td>
+                        <td><span class="status-out">Not direct</span></td>
+                        <td>Standards alignment</td>
+                        <td>WP6 contributions to emerging standards</td>
+                    </tr>
+                    <tr>
+                        <td>Certification Bodies</td>
+                        <td>BSI, ANSSI, CCN</td>
+                        <td><span class="status-out">Not direct</span></td>
+                        <td>Advisory Board</td>
+                        <td>Security assessment, certification pathways</td>
+                    </tr>
+                    <tr>
+                        <td>EU Institutions</td>
+                        <td>EC, ECCC, Chips JU</td>
+                        <td><span class="status-out">Funder</span></td>
+                        <td>Funding, governance</td>
+                        <td>Project oversight, policy alignment</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Section 4: Workplan -->
+    <section id="workplan" class="light-bg">
+        <h2>Workplan</h2>
+
+        <!-- Alignment with Call Expected Outcomes -->
+        <h3 style="margin-top: 2rem;">Alignment with Call Expected Outcomes</h3>
+        <p style="color: #64748B; margin-bottom: 1.5rem;">The table below maps each expected outcome from subtopic (a) of HORIZON-CL3-2026-02-CS-ECCC-01 to SENTINEL's Specific Objectives (SOs) and Work Packages (WPs), demonstrating comprehensive coverage across all call requirements.</p>
+
+        <div style="overflow-x: auto;">
+            <table style="width:100%; border-collapse: collapse; font-size: 0.88rem; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <thead>
+                    <tr style="background: var(--navy); color: white;">
+                        <th style="padding: 0.8rem 1rem; text-align: left; font-weight: 600; width: 22%;">Call Expected Outcome</th>
+                        <th style="padding: 0.8rem 1rem; text-align: center; font-weight: 600; width: 10%;">SO(s)</th>
+                        <th style="padding: 0.8rem 1rem; text-align: center; font-weight: 600; width: 10%;">WP(s)</th>
+                        <th style="padding: 0.8rem 1rem; text-align: left; font-weight: 600; width: 58%;">How SENTINEL Addresses It</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F4FF;">
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; font-weight: 500;">Tamper-resistant chip and processor architectures</td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">SO4</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">WP2, WP4</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0;">WP2 develops aging-resilient PUF architectures, PQC co-processors with side-channel hardening (T2.1, T2.4), and silicon validation on test chips (T2.5). WP4 applies formal verification to PUF/PQC modules (T4.2) and RTL vulnerability scanning (T4.3).</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; font-weight: 500;">Supply chain transparency and traceability</td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">SO4, SO5</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">WP2, WP5</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0;">WP2 provides PUF-anchored hardware roots of trust for chip identity (T2.1, T2.3). WP5 builds an end-to-end supply chain traceability demonstrator integrating HW root of trust with provenance tracking (T5.3), and counterfeit/recycled chip detection benchmarking (T5.5).</td>
+                    </tr>
+                    <tr style="background: #F0F4FF;">
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; font-weight: 500;">Security-by-design methodologies for hardware assessment</td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">SO3</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">WP4</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0;">WP4 is dedicated to security-by-design: comprehensive threat modelling (T4.1), formal verification of PUF/PQC modules (T4.2), automated RTL vulnerability scanning against CWE benchmarks (T4.3), and security-by-design integration guidelines aligned with Common Criteria and EU Cybersecurity Act (T4.4).</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; font-weight: 500;">Non-destructive authentication and physical analysis of ICs</td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">SO5</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">WP5</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0;">WP5 applies THz imaging and X-ray tomography (Fraunhofer ITWM) for non-destructive IC authentication (T5.2), correlating physical-layer signatures with PUF-based digital identities for multi-modal supply-chain-wide chip authentication.</td>
+                    </tr>
+                    <tr style="background: #F0F4FF;">
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; font-weight: 500;">Hardware supply chain security and secure PQC implementations</td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">SO3, SO4, SO5</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">WP2, WP3, WP5</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0;">WP2 delivers secure PQC co-processor RTL with side-channel countermeasures (T2.4). WP3 trains ML classifiers to detect hardware trojans via aging signatures (T3.2). WP5 integrates counterfeit/recycled chip detection using irreversible degradation markers (T5.5) and non-destructive analysis (T5.2).</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; font-weight: 500;">Self-healing firmware with anomaly detection and secure rollback</td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">SO1, SO2, SO3</span></td>
+                        <td style="padding: 0.7rem 1rem; border-bottom: 1px solid #E2E8F0; text-align: center;"><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;">WP3, WP5</span></td>
+                        <td style="padding: 0.7rem 1rem;">WP3 implements adaptive V/f control and on-chip annealing for self-healing (T3.3), plus a lightweight on-chip ML inference engine for real-time anomaly detection (T3.4). IAR Systems contributes secure boot attestation and anti-rollback mechanisms. WP5 integrates these into the FPGA/SoC demonstrator (T5.1).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Coverage summary -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+            <div style="background: white; border-radius: 8px; padding: 1.2rem; border-left: 4px solid #8B5CF6; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <h4 style="margin: 0 0 0.5rem; font-size: 0.95rem;">SO Coverage</h4>
+                <p style="margin: 0; font-size: 0.85rem; color: #64748B;">
+                    <strong>SO1</strong> (Real-time monitoring) → Self-healing firmware<br>
+                    <strong>SO2</strong> (Adaptive lifetime extension) → Self-healing firmware<br>
+                    <strong>SO3</strong> (Anomaly detection & obfuscation) → Security-by-design, HW supply chain, Self-healing<br>
+                    <strong>SO4</strong> (Robust PUFs & entropy) → Tamper-resistant, Supply chain traceability, HW supply chain<br>
+                    <strong>SO5</strong> (Counterfeit detection) → Supply chain traceability, Non-destructive auth, HW supply chain
+                </p>
+            </div>
+            <div style="background: white; border-radius: 8px; padding: 1.2rem; border-left: 4px solid #0D9488; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <h4 style="margin: 0 0 0.5rem; font-size: 0.95rem;">Full Coverage Achieved</h4>
+                <p style="margin: 0; font-size: 0.85rem; color: #64748B;">
+                    All 6 call expected outcomes are addressed by at least one WP and one SO. The three RTD work packages (WP2, WP3, WP4) cover the core technology; WP5 integrates and validates across all outcomes. Every SO maps to at least one call outcome, ensuring no gaps between SENTINEL's research objectives and the call's policy goals.
+                </p>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 2rem;">Work Package Structure</h3>
+        <div class="wp-grid">
+            <div class="wp-card wp-1">
+                <strong>WP1</strong><br>
+                Project Management<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P1 | 28 PM</small>
+            </div>
+            <div class="wp-card wp-2">
+                <strong>WP2</strong><br>
+                Secure Chip Primitives<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P1 | 100 PM</small>
+            </div>
+            <div class="wp-card wp-3">
+                <strong>WP3</strong><br>
+                On-Chip Monitoring & ML<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P6 | 80 PM</small>
+            </div>
+            <div class="wp-card wp-4">
+                <strong>WP4</strong><br>
+                Security-by-Design Methods<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P3 | 56 PM</small>
+            </div>
+            <div class="wp-card wp-5">
+                <strong>WP5</strong><br>
+                Integration & Validation<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P7 | 72 PM</small>
+            </div>
+            <div class="wp-card wp-6">
+                <strong>WP6</strong><br>
+                Dissemination & Exploitation<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P8 | 38 PM</small>
+            </div>
+            <div class="wp-card wp-7">
+                <strong>WP7</strong><br>
+                Ethics Requirements<br>
+                <small style="font-size: 0.75rem; font-weight: 400;">Lead: P1 | 12 PM</small>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP1 Detailed: Project Management and Coordination</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Ensure effective coordination, financial management, quality control, and timely delivery of all project outputs.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T1.1</td>
+                        <td>Operational management and financial coordination</td>
+                        <td>P1</td>
+                        <td>P1</td>
+                        <td>M1-M42</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T1.2</td>
+                        <td>Internal quality assurance and peer review of deliverables</td>
+                        <td>P1</td>
+                        <td>P1, P3, P8</td>
+                        <td>M1-M42</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T1.3</td>
+                        <td>Risk monitoring, contingency management and Go/No-Go assessment</td>
+                        <td>P1</td>
+                        <td>P1</td>
+                        <td>M1-M42</td>
+                        <td>8</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Deliverables:</h4>
+            <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+                <li><strong>D1.1</strong> Project Management Plan (M3)</li>
+                <li><strong>D1.2</strong> Annual progress reports (M12, M24, M36)</li>
+                <li><strong>D1.3</strong> Final project report (M42)</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP2 Detailed: Secure Chip Primitives: PUFs, Aging and PQC</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Develop aging-resilient PUF architectures, degradation-based lifecycle models, and PQC-hardened co-processors.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T2.1</td>
+                        <td>Ring-oscillator PUF design with harmonic frequency exploitation</td>
+                        <td>P1</td>
+                        <td>P1, P8</td>
+                        <td>M1-M18</td>
+                        <td>24</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T2.2</td>
+                        <td>CMOS degradation-based lifecycle models</td>
+                        <td>P6</td>
+                        <td>P1, P6</td>
+                        <td>M1-M24</td>
+                        <td>22</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T2.3</td>
+                        <td>Aging-resilient PUF design and entropy-stability analysis</td>
+                        <td>P1</td>
+                        <td>P1, P6</td>
+                        <td>M12-M28</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T2.4</td>
+                        <td>PQC co-processor design (Kyber/Dilithium) with side-channel hardening</td>
+                        <td>P2</td>
+                        <td>P1, P2</td>
+                        <td>M6-M24</td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T2.5</td>
+                        <td>Silicon validation of PUF and PQC on test chips</td>
+                        <td>P1</td>
+                        <td>P1, P8</td>
+                        <td>M18-M30</td>
+                        <td>16</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP3 Detailed: On-Chip Monitoring and ML-Based Anomaly Detection</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Design on-chip sensor arrays and train physics-informed ML models for real-time tamper detection, aging anomaly classification, and attack discrimination with minimal area and power overhead.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T3.1</td>
+                        <td>On-chip degradation sensor array design</td>
+                        <td>P6</td>
+                        <td>P1, P6</td>
+                        <td>M4-M18</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T3.2</td>
+                        <td>Physics-informed ML models for anomaly and attack classification</td>
+                        <td>P6</td>
+                        <td>P1, P6</td>
+                        <td>M6-M28</td>
+                        <td>24</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T3.3</td>
+                        <td>Adaptive V/f control and self-healing mechanisms</td>
+                        <td>P6</td>
+                        <td>P5, P6</td>
+                        <td>M12-M30</td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T3.4</td>
+                        <td>Lightweight on-chip inference engine</td>
+                        <td>P6</td>
+                        <td>P6</td>
+                        <td>M18-M34</td>
+                        <td>18</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Deliverables:</h4>
+            <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+                <li><strong>D3.1</strong> Sensor array specification (M10)</li>
+                <li><strong>D3.2</strong> ML model architecture (M18)</li>
+                <li><strong>D3.3</strong> Anomaly detection validation (M28)</li>
+                <li><strong>D3.4</strong> Inference engine RTL (M34)</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP4 Detailed: Security-by-Design Methods and Formal Verification</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Develop comprehensive threat models, formal verification methodologies, and security-by-design guidelines ensuring SENTINEL components meet Common Criteria and EU Cybersecurity Act requirements.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T4.1</td>
+                        <td>Threat modelling and security requirements analysis</td>
+                        <td>P3</td>
+                        <td>P3, P4</td>
+                        <td>M6-M14</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T4.2</td>
+                        <td>Formal verification of PUF/PQC modules</td>
+                        <td>P3</td>
+                        <td>P1, P2, P3</td>
+                        <td>M12-M30</td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T4.3</td>
+                        <td>RTL vulnerability scanner development</td>
+                        <td>P3</td>
+                        <td>P3</td>
+                        <td>M10-M30</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T4.4</td>
+                        <td>Security-by-design integration guidelines</td>
+                        <td>P3</td>
+                        <td>P3, P4, P8</td>
+                        <td>M24-M36</td>
+                        <td>12</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Deliverables:</h4>
+            <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+                <li><strong>D4.1</strong> Threat model (M14)</li>
+                <li><strong>D4.2</strong> Formal verification report (M30)</li>
+                <li><strong>D4.3</strong> RTL scanner tool (M30)</li>
+                <li><strong>D4.4</strong> Security-by-design guidelines (M36)</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP5 Detailed: Integration, Validation and Non-Destructive Analysis</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Integrate all SENTINEL components into a unified demonstrator platform, validate through non-destructive physical analysis techniques, and pilot in end-user operational scenarios.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T5.1</td>
+                        <td>System-level integration of PUF + PQC + monitors on FPGA/SoC</td>
+                        <td>P1</td>
+                        <td>P1, P2, P5</td>
+                        <td>M18-M30</td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T5.2</td>
+                        <td>Non-destructive IC authentication: THz imaging & electrical fingerprinting</td>
+                        <td>P7</td>
+                        <td>P1, P7, P8</td>
+                        <td>M18-M34</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T5.3</td>
+                        <td>Supply chain traceability demonstrator with HW root of trust</td>
+                        <td>P4</td>
+                        <td>P1, P4, P9</td>
+                        <td>M22-M38</td>
+                        <td>14</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T5.4</td>
+                        <td>End-user pilot: defence/critical infrastructure validation</td>
+                        <td>P9</td>
+                        <td>P1, P4, P9</td>
+                        <td>M28-M40</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T5.5</td>
+                        <td>Counterfeit & recycled chip detection benchmarking</td>
+                        <td>P7</td>
+                        <td>P1, P3, P7</td>
+                        <td>M24-M40</td>
+                        <td>12</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Deliverables:</h4>
+            <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+                <li><strong>D5.1</strong> Integrated Demonstrator (M30)</li>
+                <li><strong>D5.2</strong> Non-Destructive Authentication Report (M34)</li>
+                <li><strong>D5.3</strong> Supply Chain Traceability Demonstrator (M38)</li>
+                <li><strong>D5.4</strong> Pilot Validation Report (M40)</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP6 Detailed: Dissemination, Exploitation and Communication</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Maximise project impact through scientific publications, standardisation contributions, IPR management, exploitation planning, and public communication.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T6.1</td>
+                        <td>Scientific dissemination: publications, conferences, workshops</td>
+                        <td>P8</td>
+                        <td>All partners</td>
+                        <td>M1-M42</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T6.2</td>
+                        <td>Standardisation liaison (ETSI, CEN-CENELEC, ISO 15408)</td>
+                        <td>P3</td>
+                        <td>P3, P4, P8</td>
+                        <td>M6-M42</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T6.3</td>
+                        <td>Individual Exploitation Plans & IPR management</td>
+                        <td>P8</td>
+                        <td>All partners</td>
+                        <td>M6-M42</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T6.4</td>
+                        <td>Public communication, website & stakeholder engagement</td>
+                        <td>P9</td>
+                        <td>P1, P8, P9</td>
+                        <td>M1-M42</td>
+                        <td>8</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Deliverables:</h4>
+            <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+                <li><strong>D6.1</strong> DEC Plan v1.0 (M6)</li>
+                <li><strong>D6.2</strong> Exploitation & IPR Report (M24, updated M42)</li>
+                <li><strong>D6.3</strong> Final DEC Report (M42)</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 3rem;">WP7 Detailed: Ethics Requirements</h3>
+        <div class="description-box">
+            <strong>Objective:</strong> Ensure full compliance with ethical requirements, dual-use assessment, and responsible research and innovation principles.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Lead</th>
+                        <th>Partners</th>
+                        <th>Duration</th>
+                        <th>PMs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="task-id">T7.1</td>
+                        <td>Ethics compliance monitoring and dual-use assessment</td>
+                        <td>P1</td>
+                        <td>P1</td>
+                        <td>M1-M42</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T7.2</td>
+                        <td>Responsible disclosure framework for security vulnerabilities</td>
+                        <td>P3</td>
+                        <td>P1, P3</td>
+                        <td>M1-M24</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td class="task-id">T7.3</td>
+                        <td>Societal impact assessment of hardware security technologies</td>
+                        <td>P1</td>
+                        <td>P1, P9</td>
+                        <td>M12-M42</td>
+                        <td>2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Deliverables:</h4>
+            <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+                <li><strong>D7.1</strong> Ethics Compliance Report (M6, updated M24, M42)</li>
+                <li><strong>D7.2</strong> Responsible Disclosure Policy (M12)</li>
+                <li><strong>D7.3</strong> Societal Impact Report (M42)</li>
+            </ul>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Milestones & Go/No-Go Gates</h3>
+        <div class="milestone-section">
+            <div class="milestone">
+                <div class="milestone-label">MS1 (M3)</div>
+                <div class="milestone-bar ms-blue">Consortium kick-off and DMP approved</div>
+            </div>
+            <div class="milestone">
+                <div class="milestone-label">MS2 (M12)</div>
+                <div class="milestone-bar ms-purple">PUF design frozen, simulation >95% uniqueness</div>
+            </div>
+            <div class="milestone">
+                <div class="milestone-label">MS3 (M24) 🚩</div>
+                <div class="milestone-bar ms-red">PQC FPGA prototype validated against NIST test vectors</div>
+            </div>
+            <div class="milestone">
+                <div class="milestone-label">MS4 (M22) 🚩</div>
+                <div class="milestone-bar ms-green">ML model achieves >90% attack detection accuracy</div>
+            </div>
+            <div class="milestone">
+                <div class="milestone-label">MS7 (M30) 🚩</div>
+                <div class="milestone-bar ms-teal">Integrated demonstrator operational</div>
+            </div>
+            <div class="milestone">
+                <div class="milestone-label">MS8 (M40)</div>
+                <div class="milestone-bar ms-orange">Pilot validation with end-user sign-off</div>
+            </div>
+            <div class="milestone">
+                <div class="milestone-label">MS10 (M6)</div>
+                <div class="milestone-bar ms-indigo">Ethics protocol approved</div>
+            </div>
+        </div>
+
+        <!-- Gantt Chart -->
+        <h3 style="margin-top: 3rem;">📅 Gantt Chart</h3>
+        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+            <h4 style="text-align:center; margin-bottom: 1.5rem;">SENTINEL Project Timeline (42 months)</h4>
+            <div class="gantt-container" style="height: 380px;">
+                <canvas id="ganttChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Critical Path -->
+        <h3 style="margin-top: 3rem;">🔗 Critical Path</h3>
+        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 2rem; border-left: 4px solid #DC2626;">
+            <p style="margin-bottom: 1.5rem; color: #64748B;">The sequence of interdependent activities that determines the minimum project duration. Any delay on the critical path delays the entire project.</p>
+
+            <!-- CP Step 1 -->
+            <div style="background: #F8FAFC; border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; border-left: 4px solid #8B5CF6;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin:0;">1. Secure Chip Primitives (WP2)</h4>
+                    <span style="color: #8B5CF6; font-weight: 700;">M1 → M30</span>
+                </div>
+                <div style="background: #8B5CF6; height: 10px; border-radius: 5px; margin: 0.8rem 0 0.5rem; width: 71%;"></div>
+                <p style="margin:0; font-size: 0.85rem; color: #64748B;">Blocks WP5 integration. Buffer: 0 months (critical). PUF + PQC deliverables must be ready for T5.1.</p>
+            </div>
+
+            <!-- CP Step 2 -->
+            <div style="background: #F8FAFC; border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; border-left: 4px solid #EC4899;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin:0;">2. On-Chip Monitoring & ML (WP3)</h4>
+                    <span style="color: #EC4899; font-weight: 700;">M4 → M34</span>
+                </div>
+                <div style="background: #EC4899; height: 10px; border-radius: 5px; margin: 0.8rem 0 0.5rem; width: 71%;"></div>
+                <p style="margin:0; font-size: 0.85rem; color: #64748B;">Parallel to WP2. Blocks WP5 via sensor arrays and ML inference engine. MS4 Go/No-Go at M22.</p>
+            </div>
+
+            <!-- CP Step 3 -->
+            <div style="background: #F8FAFC; border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; border-left: 4px solid #0D9488;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin:0;">3. Integration & Validation (WP5)</h4>
+                    <span style="color: #0D9488; font-weight: 700;">M18 → M40</span>
+                </div>
+                <div style="background: #0D9488; height: 10px; border-radius: 5px; margin: 0.8rem 0 0.5rem; width: 52%; margin-left: 43%;"></div>
+                <p style="margin:0; font-size: 0.85rem; color: #64748B;">The critical integration gate. Depends on WP2 and WP3. MS7 Go/No-Go at M30. Buffer: 10 months for validation.</p>
+            </div>
+
+            <!-- CP Step 4 -->
+            <div style="background: #F8FAFC; border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; border-left: 4px solid #F97316;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin:0;">4. Security-by-Design (WP4)</h4>
+                    <span style="color: #F97316; font-weight: 700;">M6 → M36</span>
+                </div>
+                <div style="background: #F97316; height: 10px; border-radius: 5px; margin: 0.8rem 0 0.5rem; width: 71%; opacity: 0.5; margin-left: 14%;"></div>
+                <p style="margin:0; font-size: 0.85rem; color: #64748B;">Feeds into WP5 with more schedule margin. Not on critical path but essential for certification compliance.</p>
+            </div>
+        </div>
+
+        <!-- Strategic Buffers -->
+        <h3 style="margin-top: 3rem;">💡 Strategic Buffers</h3>
+        <div style="background: #FFFBEB; border: 2px solid #F59E0B; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <p style="margin: 0 0 0.5rem;"><strong>WP2 → WP5 handoff:</strong> WP2 ends at M30, WP5 integration starts at M18. Overlap of 12 months allows incremental delivery of PUF/PQC blocks to WP5 as they mature, rather than a single handoff.</p>
+                </div>
+                <div>
+                    <p style="margin: 0 0 0.5rem;"><strong>WP3 → WP5 handoff:</strong> WP3 delivers ML inference engine at M34, while WP5 integration starts at M18. Sensor array spec (D3.1, M10) enables early integration work.</p>
+                </div>
+                <div>
+                    <p style="margin: 0 0 0.5rem;"><strong>Fabrication contingency:</strong> IMEC pilot line as backup to commercial MPW runs. Parallel FPGA emulation path ensures integration work is never blocked by silicon delays.</p>
+                </div>
+                <div>
+                    <p style="margin: 0 0 0.5rem;"><strong>Validation window:</strong> MS7 (demonstrator operational) at M30 leaves 10 months for pilot validation (T5.4), non-destructive analysis (T5.2), and supply chain demo (T5.3) before project end at M42.</p>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #F59E0B;">
+                <p style="margin: 0;"><strong>⏱️ Total Project Duration:</strong> 42 months with ~10% implicit contingency distributed across non-critical WPs (WP4, WP6, WP7 all run to M42, providing flexibility).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Consortium -->
+    <section id="consortium" class="white-bg">
+        <h2>Consortium</h2>
+
+        <h3 style="margin-top: 2rem;">Partners</h3>
+        <div class="grid-2">
+            <!-- P1 CSIC -->
+            <div class="partner-card">
+                <div class="partner-header">P1 CSIC / IMSE-CNM 🇪🇸</div>
+                <div class="partner-details">Madrid, Spain</div>
+                <div class="partner-details"><strong>Type:</strong> OPI (Public Research) &nbsp;|&nbsp; <strong>Role:</strong> <strong>COORDINATOR</strong></div>
+                <div class="partner-details">Leads WP1, WP2, WP7</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> World-leading group in mixed-signal IC design with >25 years in CMOS reliability and hardware security primitives. Sole partner with expertise to design the aging monitors, PUF architectures, and on-chip sensors that form the project's core IP (SO1, SO4). Without CSIC's transistor-level design capability, the fundamental innovation of exploiting CMOS variability for security would not exist.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> No direct substitute — unique coordinator role and IP originator.
+                </div>
+                <div><span class="badge badge-blue">HES Eligible</span></div>
+            </div>
+
+            <!-- P2 PQC Hardware -->
+            <div class="partner-card">
+                <div class="partner-header">P2 Partner expert in post-quantum cryptography hardware design</div>
+                <div class="partner-details" style="color: #0D9488; font-weight: 500;">Potential: TU Graz — IAIK 🇦🇹</div>
+                <div class="partner-details"><strong>Type:</strong> University &nbsp;|&nbsp; Leads T2.4 (PQC)</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> IAIK is a leading European cryptographic engineering institute. Provides PQC hardware implementations (Kyber/Dilithium on FPGA and ASIC) with side-channel protection countermeasures. Without dedicated PQC hardware expertise, SO4 (post-quantum-ready root of trust) cannot be achieved — the project would lack the quantum-resistant key generation co-processor that anchors the entire security chain.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> No fully equivalent substitute identified. Abelium (Slovenia) was evaluated but lacks hardware PQC design capability (software-only focus).
+                </div>
+                <div><span class="badge badge-blue">HES Eligible</span></div>
+            </div>
+
+            <!-- P3 Security Evaluation & Formal Verification -->
+            <div class="partner-card">
+                <div class="partner-header">P3 Partner expert in hardware security evaluation and formal verification</div>
+                <div class="partner-details" style="color: #0D9488; font-weight: 500;">Potential: Fraunhofer AISEC 🇩🇪</div>
+                <div class="partner-details"><strong>Type:</strong> RTO &nbsp;|&nbsp; Leads WP4 (Security-by-Design)</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> BSI-certified evaluation facility with expertise in Common Criteria certification and EU Cybersecurity Act compliance. Provides hardware formal verification, automated vulnerability analysis, and side-channel evaluation. Without a certified security evaluator, SENTINEL's outputs cannot achieve the compliance credentials needed for market adoption under the EU Cyber Resilience Act.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> CEA-Leti (France) or Brightsight (NL) could provide comparable security evaluation, but lack AISEC's formal verification automation.
+                </div>
+                <div><span class="badge badge-blue">HES Eligible</span></div>
+            </div>
+
+            <!-- P4 Defence & Supply Chain Industry -->
+            <div class="partner-card">
+                <div class="partner-header">P4 Partner expert in defence & critical infrastructure supply chain security</div>
+                <div class="partner-details" style="color: #0D9488; font-weight: 500;">Potential: Thales DIS 🇫🇷</div>
+                <div class="partner-details"><strong>Type:</strong> Large Industry &nbsp;|&nbsp; Participates WP2, WP5</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> Provides industrial-scale supply chain security requirements, hardware roots of trust from a defence/critical infrastructure perspective, and operational end-user validation scenarios. Without a large industrial integrator, SENTINEL's technology remains at lab scale — Thales brings the real-world deployment context needed for TRL 5-6 validation and the defence supply chain use case required by the call.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> BULL/Eviden (France) — equivalent industrial weight with stronger HPC/quantum alignment. ASELSAN (Turkey, Associated Country) — defence end-user with direct interest in the call topic.
+                </div>
+                <div><span class="badge badge-green">Large Industry</span></div>
+            </div>
+
+            <!-- P5 Embedded Firmware Security -->
+            <div class="partner-card">
+                <div class="partner-header">P5 Partner expert in embedded firmware security and secure boot</div>
+                <div class="partner-details" style="color: #0D9488; font-weight: 500;">Potential: IAR Systems 🇸🇪</div>
+                <div class="partner-details"><strong>Type:</strong> SME &nbsp;|&nbsp; Participates WP3, WP5</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> Self-healing firmware, secure boot, RTOS attestation, and anti-rollback mechanisms — deployed in billions of devices worldwide. Without embedded firmware security expertise, SENTINEL's hardware innovations cannot be translated into deployable secure systems. IAR bridges the gap between on-chip sensors and the firmware layer that end-users interact with (call outcome: self-healing firmware).
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> Tria Technologies (Spain) — embedded computing OEM specialising in SBCs and compute modules for WP5 validation.
+                </div>
+                <div><span class="badge badge-green">SME</span></div>
+            </div>
+
+            <!-- P6 TUM -->
+            <div class="partner-card">
+                <div class="partner-header">P6 TUM (Amrouch Group) 🇩🇪</div>
+                <div class="partner-details">Germany</div>
+                <div class="partner-details"><strong>Type:</strong> University &nbsp;|&nbsp; Leads WP3 (On-Chip Monitoring & ML)</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> Prof. Amrouch's unique combination of AI-based CMOS aging modeling, hardware trojan detection via aging signatures, and reliability-aware AI processor design. Provides the physics-informed ML models (SO1, SO2) that enable real-time workload-aware aging prediction — going beyond statistical models to capture device-specific degradation. Without TUM, the ML-driven anomaly detection and adaptive lifetime extension (the "intelligent" part of SENTINEL) would lack its scientific foundation.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> Replaced Cranfield University (v2.0) for stronger CMOS aging + ML fit. No equivalent substitute identified.
+                </div>
+                <div><span class="badge badge-blue">HES Eligible</span></div>
+            </div>
+
+            <!-- P7 Non-destructive IC Analysis -->
+            <div class="partner-card">
+                <div class="partner-header">P7 Partner expert in non-destructive IC analysis (THz/X-ray)</div>
+                <div class="partner-details" style="color: #0D9488; font-weight: 500;">Potential: Fraunhofer ITWM 🇩🇪</div>
+                <div class="partner-details"><strong>Type:</strong> RTO &nbsp;|&nbsp; Leads WP5 (Integration & Validation)</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> Non-destructive IC analysis using THz imaging and X-ray tomography — directly enabling SO5 (counterfeit/recycled-chip detection). Without non-destructive analysis capability, SENTINEL cannot deliver its multi-modal chip authentication promise. Also provides system-level integration expertise for the FPGA/SoC demonstrator.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> No equivalent substitute — THz/X-ray IC imaging is a rare capability in Europe.
+                </div>
+                <div><span class="badge badge-blue">HES Eligible</span></div>
+            </div>
+
+            <!-- P8 IMEC -->
+            <div class="partner-card">
+                <div class="partner-header">P8 IMEC 🇧🇪</div>
+                <div class="partner-details">Belgium</div>
+                <div class="partner-details"><strong>Type:</strong> RTO &nbsp;|&nbsp; Leads WP6 (Dissemination & Exploitation)</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> IC-technology-level hardware security evaluation (side-channel, fault injection), PUF characterisation on advanced process nodes, and 300mm semiconductor pilot line access for silicon validation. COSIC/KU Leuven affiliation provides world-leading hardware security expertise. Without IMEC, SENTINEL has no silicon fabrication pathway — the project would be limited to simulation and FPGA emulation, never reaching TRL 5-6 on real silicon.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> Replaced Riscure/Keysight (v2.0). No equivalent substitute — IMEC's pilot line + COSIC expertise is unique in Europe.
+                </div>
+                <div><span class="badge badge-blue">HES Eligible</span></div>
+            </div>
+
+            <!-- P9 Safety-Critical Validation -->
+            <div class="partner-card">
+                <div class="partner-header">P9 Partner expert in safety-critical systems validation (Widening)</div>
+                <div class="partner-details" style="color: #0D9488; font-weight: 500;">Potential: Critical Software 🇵🇹</div>
+                <div class="partner-details"><strong>Type:</strong> SME &nbsp;|&nbsp; Participates WP5</div>
+                <div style="background: #F0FDF4; border-left: 3px solid #16A34A; padding: 0.6rem 0.8rem; border-radius: 4px; margin: 0.5rem 0; font-size: 0.85rem;">
+                    <strong>Why essential:</strong> Safety-critical systems integration with independent verification and validation services for defence and aerospace. Provides the real-world deployment context for high-assurance environments where SENTINEL's secure chips will operate. Also fulfils Horizon Europe's Widening participation requirement, strengthening the proposal's inclusiveness dimension.
+                </div>
+                <div style="background: #F8FAFC; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <strong>Substitute:</strong> ASELSAN (Turkey, Associated Country) — defence electronics validation with radar/EW systems expertise.
+                </div>
+                <div><span class="badge badge-green">SME</span> <span class="badge badge-orange">WIDENING Country</span></div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Consortium Balance Analysis</h3>
+        <div class="balance-cards">
+            <div class="balance-card">
+                <h4>🌍 Geographic Balance</h4>
+                <p><strong>7 countries:</strong> ES, AT, DE, FR, SE, BE, PT</p>
+                <p>Includes widening geography (Portugal) for innovation diffusion in emerging research ecosystems.</p>
+            </div>
+            <div class="balance-card">
+                <h4>📊 Partner Typology</h4>
+                <p><strong>3 Universities/OPIs:</strong> CSIC, TU Graz, TUM</p>
+                <p><strong>3 RTOs:</strong> Fraunhofer AISEC, ITWM, IMEC</p>
+                <p><strong>1 Large Industry:</strong> Thales DIS</p>
+                <p><strong>2 SMEs:</strong> IAR Systems, Critical Software</p>
+            </div>
+            <div class="balance-card">
+                <h4>🔗 Complementarity</h4>
+                <p>Full value chain from chip design (academia) to RTL design tools (IMEC) to embedded systems (IAR) to end-user validation (Thales, Critical Software).</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Governance Structure</h3>
+        <div class="governance-grid">
+            <div class="governance-card">
+                <h4>General Assembly (GA)</h4>
+                <ul>
+                    <li>1 representative per partner (9 members)</li>
+                    <li>Maximum decision-making body</li>
+                    <li>Annual meetings + ad-hoc sessions</li>
+                    <li>Approval of annual reports, budgets</li>
+                </ul>
+            </div>
+            <div class="governance-card">
+                <h4>Project Coordinator (PC)</h4>
+                <ul>
+                    <li>CSIC (P1) — daily operations</li>
+                    <li>EC communication & reporting</li>
+                    <li>Consortium logistics & timelines</li>
+                    <li>Risk escalation & contingency</li>
+                </ul>
+            </div>
+            <div class="governance-card">
+                <h4>Scientific Committee (SC)</h4>
+                <ul>
+                    <li>WP1-WP7 leaders</li>
+                    <li>Scientific supervision & steering</li>
+                    <li>Technical milestone reviews</li>
+                    <li>Go/No-Go gate decisions</li>
+                </ul>
+            </div>
+            <div class="governance-card">
+                <h4>Advisory Board (AB)</h4>
+                <ul>
+                    <li>External experts: BSI, ANSSI, CCN</li>
+                    <li>Defence end-user representatives</li>
+                    <li>Certification body guidance</li>
+                    <li>Semi-annual reviews</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Budget -->
+    <section id="budget" class="light-bg">
+        <h2>Budget</h2>
+
+        <h3 style="text-align: center; margin-top: 2rem;">Budget Summary</h3>
+        <div class="grid-2">
+            <div class="summary-card">
+                <div class="summary-value">€3,830,000</div>
+                <div class="summary-label">Total Budget</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">386</div>
+                <div class="summary-label">Person-Months</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">100%</div>
+                <div class="summary-label">Funding (RIA)</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">Lump Sum</div>
+                <div class="summary-label">Financial Model</div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Budget Breakdown by Partner and Work Package</h3>
+        <div style="overflow-x: auto;">
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Partner</th>
+                        <th>Base</th>
+                        <th>WP1</th>
+                        <th>WP2</th>
+                        <th>WP3</th>
+                        <th>WP4</th>
+                        <th>WP5</th>
+                        <th>WP6</th>
+                        <th>WP7</th>
+                        <th>Total PM</th>
+                        <th>Budget (€k)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="budget-partner">P1 CSIC</td>
+                        <td>12</td>
+                        <td>36</td>
+                        <td>16</td>
+                        <td>6</td>
+                        <td>12</td>
+                        <td>4</td>
+                        <td>6</td>
+                        <td>—</td>
+                        <td><strong>92</strong></td>
+                        <td><strong>620</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P2 TU Graz</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>30</td>
+                        <td>—</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td><strong>42</strong></td>
+                        <td><strong>380</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P3 Fraunhofer AISEC</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>4</td>
+                        <td>—</td>
+                        <td>24</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td><strong>40</strong></td>
+                        <td><strong>440</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P4 Thales DIS</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>6</td>
+                        <td>—</td>
+                        <td>6</td>
+                        <td>14</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td><strong>36</strong></td>
+                        <td><strong>500</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P5 IAR Systems</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>18</td>
+                        <td>—</td>
+                        <td>6</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td><strong>28</strong></td>
+                        <td><strong>250</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P6 TUM</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>14</td>
+                        <td>30</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>—</td>
+                        <td><strong>58</strong></td>
+                        <td><strong>520</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P7 Fraunhofer ITWM</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>4</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>22</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td><strong>30</strong></td>
+                        <td><strong>360</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P8 IMEC</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>6</td>
+                        <td>—</td>
+                        <td>12</td>
+                        <td>8</td>
+                        <td>10</td>
+                        <td>—</td>
+                        <td><strong>38</strong></td>
+                        <td><strong>460</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="budget-partner">P9 Critical Software</td>
+                        <td>2</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>14</td>
+                        <td>6</td>
+                        <td>—</td>
+                        <td><strong>22</strong></td>
+                        <td><strong>300</strong></td>
+                    </tr>
+                    <tr style="background: #f0f4f8; font-weight: 700;">
+                        <td class="budget-partner">TOTAL</td>
+                        <td>28</td>
+                        <td>36</td>
+                        <td>80</td>
+                        <td>54</td>
+                        <td>66</td>
+                        <td>80</td>
+                        <td>40</td>
+                        <td>6</td>
+                        <td style="text-align: center;">386</td>
+                        <td style="text-align: center;">3,830</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top: 3rem;">Expenditure Breakdown</h3>
+        <div class="breakdown-cards">
+            <div class="breakdown-card">
+                <h4>👥 Personnel</h4>
+                <div class="breakdown-amount">€3.26M</div>
+                <div class="breakdown-pct">~85%</div>
+            </div>
+            <div class="breakdown-card">
+                <h4>⚙️ Subcontracting</h4>
+                <div class="breakdown-amount">€200k</div>
+                <div class="breakdown-pct">~5%</div>
+                <small style="color: #888; margin-top: 0.5rem;">MPW fabrication, CC lab access</small>
+            </div>
+            <div class="breakdown-card">
+                <h4>🖥️ Equipment</h4>
+                <div class="breakdown-amount">€170k</div>
+                <div class="breakdown-pct">~4%</div>
+                <small style="color: #888; margin-top: 0.5rem;">FPGA boards, test chips, IMEC pilot</small>
+            </div>
+            <div class="breakdown-card">
+                <h4>✈️ Travel</h4>
+                <div class="breakdown-amount">€150k</div>
+                <div class="breakdown-pct">~4%</div>
+                <small style="color: #888; margin-top: 0.5rem;">Meetings, conferences, collaboration</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 7: Risks -->
+    <section id="risks" class="white-bg">
+        <h2>Risk Management</h2>
+
+        <div style="overflow-x: auto;">
+            <table class="risk-table">
+                <thead>
+                    <tr>
+                        <th>Risk ID</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Probability</th>
+                        <th>Impact</th>
+                        <th>Overall Risk</th>
+                        <th>Mitigation Strategy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="risk-id">R1</td>
+                        <td>PUF uniqueness below 95% target</td>
+                        <td><span class="risk-badge badge-technical">TECHNICAL</span></td>
+                        <td>Medium (30%)</td>
+                        <td>High</td>
+                        <td><span class="risk-badge badge-high-risk">HIGH</span></td>
+                        <td><span class="risk-mitigation">Multi-architecture approach (RO-PUF + SRAM PUF + arbiter PUF), IMEC process characterisation on multiple nodes, MS2 Go/No-Go at M12</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R2</td>
+                        <td>PQC side-channel leakage in FPGA implementation</td>
+                        <td><span class="risk-badge badge-technical">TECHNICAL</span></td>
+                        <td>Medium (25%)</td>
+                        <td>High</td>
+                        <td><span class="risk-badge badge-high-risk">HIGH</span></td>
+                        <td><span class="risk-mitigation">TU Graz IAIK's proven countermeasure library, iterative leakage assessment using t-test methodology, hiding + masking combined</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R3</td>
+                        <td>ML model <90% accuracy on real silicon data</td>
+                        <td><span class="risk-badge badge-technical">TECHNICAL</span></td>
+                        <td>Medium (30%)</td>
+                        <td>High</td>
+                        <td><span class="risk-badge badge-high-risk">HIGH</span></td>
+                        <td><span class="risk-mitigation">Physics-informed models (not pure data-driven), TUM's published aging datasets for pre-training, MS4 Go/No-Go at M22 with contingency to threshold-based detection</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R4</td>
+                        <td>Partner departure (P3 or P8)</td>
+                        <td><span class="risk-badge badge-organisational">ORGANISATIONAL</span></td>
+                        <td>Low (10%)</td>
+                        <td>Critical</td>
+                        <td><span class="risk-badge badge-high-risk">HIGH</span></td>
+                        <td><span class="risk-mitigation">Consortium Agreement with permanence clauses, pre-identified substitutes, exhaustive documentation and IP escrow</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R5</td>
+                        <td>Silicon fabrication delays (MPW runs)</td>
+                        <td><span class="risk-badge badge-technical">TECHNICAL</span></td>
+                        <td>Medium (25%)</td>
+                        <td>Medium</td>
+                        <td><span class="risk-badge badge-medium-risk">MEDIUM</span></td>
+                        <td><span class="risk-mitigation">IMEC pilot line as backup to commercial MPW, parallel FPGA emulation path, 6-month buffer in WP2→WP5 handoff</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R6</td>
+                        <td>Export control restrictions on PQC/security IP</td>
+                        <td><span class="risk-badge badge-regulatory">REGULATORY</span></td>
+                        <td>Low (15%)</td>
+                        <td>High</td>
+                        <td><span class="risk-badge badge-medium-risk">MEDIUM</span></td>
+                        <td><span class="risk-mitigation">All partners EU-based, ECCC call excludes non-eligible entities, open-source PQC reference implementations as fallback</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R7</td>
+                        <td>Integration complexity exceeds timeline</td>
+                        <td><span class="risk-badge badge-technical">TECHNICAL</span></td>
+                        <td>Medium (35%)</td>
+                        <td>Medium</td>
+                        <td><span class="risk-badge badge-medium-risk">MEDIUM</span></td>
+                        <td><span class="risk-mitigation">Modular architecture (each block independently testable), MS7 Go/No-Go at M30 with 10-month validation buffer, partial integration as contingency</span></td>
+                    </tr>
+                    <tr>
+                        <td class="risk-id">R8</td>
+                        <td>Ethics/data protection compliance delays</td>
+                        <td><span class="risk-badge badge-regulatory">REGULATORY</span></td>
+                        <td>Low (10%)</td>
+                        <td>Medium</td>
+                        <td><span class="risk-badge badge-low-risk">LOW</span></td>
+                        <td><span class="risk-mitigation">WP7 dedicated ethics WP from M1, early engagement with ethics boards, MS10 at M6</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="critical-path">
+            <h4>⚠️ Risk Response Strategy</h4>
+            <p><strong>Avoidance:</strong> All fabrication risks mitigated via redundant pathways (IMEC pilot + commercial MPW + FPGA emulation).</p>
+            <p><strong>Mitigation:</strong> High-risk technical items (R1, R2, R3) have structured Go/No-Go gates at M12, M22, M24, M30 with contingency escalation.</p>
+            <p><strong>Monitoring:</strong> Monthly risk reviews by Scientific Committee; quarterly reports to EC via WP1.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p><strong>SENTINEL</strong> — Secure and Efficient On-Chip Sensing for Integrity, Lifetime Management, and Early Attack Detection & Mitigation</p>
+        <p>Horizon Europe RIA | Cluster 3 - Security | CSIC — IMSE-CNM (Coordinator)</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">© 2024 SENTINEL Consortium. All rights reserved.</p>
+    </footer>
+
+    <!-- Print Button -->
+    <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+
+    <script>
+        // Gantt Chart
+        const ctx = document.getElementById('ganttChart');
+        if (ctx) {
+            const isMobile = window.innerWidth <= 768;
+            const wpLabels = isMobile ? [
+                'WP1', 'WP2', 'WP3', 'WP4', 'WP5', 'WP6', 'WP7'
+            ] : [
+                'WP1 – Management',
+                'WP2 – Secure Primitives',
+                'WP3 – On-Chip Monitoring',
+                'WP4 – Security-by-Design',
+                'WP5 – Integration & Validation',
+                'WP6 – Exploitation',
+                'WP7 – Ethics & Data'
+            ];
+            const wpStarts = [0, 0, 3, 5, 17, 0, 0];
+            const wpEnds   = [42, 30, 34, 36, 40, 42, 42];
+            const wpColors = [
+                'rgba(59, 130, 246, 0.75)',
+                'rgba(139, 92, 246, 0.75)',
+                'rgba(236, 72, 153, 0.75)',
+                'rgba(249, 115, 22, 0.75)',
+                'rgba(13, 148, 136, 0.75)',
+                'rgba(34, 197, 94, 0.75)',
+                'rgba(99, 102, 241, 0.75)'
+            ];
+            const wpBorders = [
+                'rgb(59, 130, 246)',
+                'rgb(139, 92, 246)',
+                'rgb(236, 72, 153)',
+                'rgb(249, 115, 22)',
+                'rgb(13, 148, 136)',
+                'rgb(34, 197, 94)',
+                'rgb(99, 102, 241)'
+            ];
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: wpLabels,
+                    datasets: [
+                        {
+                            label: 'Start (hidden)',
+                            data: wpStarts,
+                            backgroundColor: 'rgba(0,0,0,0)',
+                            borderColor: 'rgba(0,0,0,0)',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Duration',
+                            data: wpEnds.map((end, i) => end - wpStarts[i]),
+                            backgroundColor: wpColors,
+                            borderColor: wpBorders,
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            barPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) return null;
+                                    const i = context.dataIndex;
+                                    return 'M' + wpStarts[i] + ' → M' + wpEnds[i] + ' (' + (wpEnds[i] - wpStarts[i]) + ' months)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            min: 0,
+                            max: 44,
+                            ticks: {
+                                stepSize: 6,
+                                callback: function(value) { return 'M' + value; }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Project Month',
+                                font: { weight: '600' }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.06)'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title: { display: false },
+                            ticks: {
+                                font: { size: isMobile ? 10 : 12, weight: '500' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('.nav-center a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+
+        // Mobile: add swipe hints to scrollable tables
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('[style*="overflow-x"]').forEach(function(wrapper) {
+                var table = wrapper.querySelector('table');
+                if (table && table.scrollWidth > wrapper.clientWidth) {
+                    var hint = document.createElement('div');
+                    hint.textContent = '← swipe to see full table →';
+                    hint.style.cssText = 'text-align:center; font-size:0.7rem; color:#94A3B8; padding:0.3rem 0; margin-top:-0.3rem;';
+                    wrapper.insertBefore(hint, table);
+                    // Fade out after 4 seconds
+                    setTimeout(function() { hint.style.transition='opacity 1s'; hint.style.opacity='0'; }, 4000);
+                }
+            });
+
+            // Make Gantt chart taller on mobile for readability
+            var ganttContainer = document.querySelector('.gantt-container');
+            if (ganttContainer) {
+                ganttContainer.style.height = '320px';
+            }
+
+            // Reduce y-axis font size on Gantt for mobile
+            var ganttCanvas = document.getElementById('ganttChart');
+            if (ganttCanvas && ganttCanvas.__chartjs) {
+                // Chart.js stores options; it will use responsive sizing
+            }
+        }
+    </script>
+</body>
+</html>
